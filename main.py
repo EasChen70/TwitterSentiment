@@ -27,6 +27,7 @@ PASSWORD = os.getenv('Password')
 #Params
 MINIMUM_TWEETS = 10
 QUERY = "$ETH"
+FILTER = "Latest"
 
 # Initialize Client
 client = Client()
@@ -45,5 +46,21 @@ client = Client()
 #Load JSON data
 client.load_cookies('cookies.json')
 
-#Get Tweets
-tweets = client.search_tweet(QUERY, product = "Top")
+tweet_count = 0
+tweets = None
+
+while tweet_count < MINIMUM_TWEETS:
+    if tweets is None:
+        #Get Tweets
+        print(f'{datetime.now()} - Getting tweets...')
+        tweets = client.search_tweet(QUERY, product=FILTER)
+    else:
+        print(f'{datetime.now()} - Getting next tweets...')
+        tweets = tweets.next()
+    if not tweets:
+        print(f'{datetime.now()} - No more tweets found')
+    for tweet in tweets:
+        tweet_count += 1
+        tweet_data = [tweet_count, tweet.user.name, tweet.text, tweet.created_at, tweet.retweet_count, tweet.favorite_count, tweet.reply_count]
+        print(tweet_data)
+    print(f'{datetime.now()} - Done! Got {tweet_count} tweets found')    
