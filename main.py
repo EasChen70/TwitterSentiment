@@ -1,45 +1,49 @@
+#Monkey Patched lol
+import httpx
+
+original_client = httpx.Client
+
+def patched_client(*args, **kwargs):
+    kwargs.pop('proxy', None)
+    return original_client(*args, **kwargs)
+
+httpx.Client = patched_client
+
 from twikit import Client, TooManyRequests
 import time
 from datetime import datetime
 import csv
-import asyncio
 from dotenv import load_dotenv
 import os
-from configparser import ConfigParser
 from random import randint
 
-MINIMUM_TWEET = 10
-QUERY = 'chatgpt'
 
-
+#Configuration
 load_dotenv(dotenv_path="secret.env")
-USERNAME = os.getenv('Username')
+USERNAME = os.getenv('User_Name')
 EMAIL = os.getenv('Email')
 PASSWORD = os.getenv('Password')
 
+#Params
+MINIMUM_TWEETS = 10
+QUERY = "$ETH"
+
 # Initialize Client
-client = Client('en-US')
-    #Login
-async def main():
-    await client.login(
-        auth_info_1=USERNAME,
-        auth_info_2=EMAIL,
-        password=PASSWORD
-    )
-    #Use Cookies   
-    await client.save_cookies('cookies.json')
+client = Client()
 
-    client.load_cookies('cookies.json')
 
-    tweet_count = 0
+#WE RUN LINES 37 TO 43 ONLY ONCE
+#Login to twitter the first time then use cookies
+# client.login(
+#         auth_info_1=USERNAME,
+#         auth_info_2=EMAIL,
+#         password=PASSWORD
+#     )
+#Save Cookies   
+# client.save_cookies('cookies.json')
 
-    tweets = await client.search_tweet(QUERY, product='Top')
+#Load JSON data
+client.load_cookies('cookies.json')
 
-    for tweet in tweets:
-        tweet_count += 1
-        tweet_data = [tweet_count, tweet.user.name, tweet.text, tweet.created_at, tweet.retweet_count, tweet.favorite_count]
-        print(vars(tweet))
-        break
-
-# Run the main function
-asyncio.run(main())
+#Get Tweets
+tweets = client.search_tweet(QUERY, product = "Top")
